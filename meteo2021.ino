@@ -41,7 +41,6 @@ unsigned long delayTime;
 #include <GyverTimer.h>
 GTimer_ms clockTimer1(500);
 GTimer_ms drawSensorsTimer(SENS_TIME);
-GTimer_ms plotTimer(240000);
 
 #include "GyverButton.h"
 #define BTN_PIN 4  //Пин кнопки 4
@@ -174,7 +173,7 @@ void drawdots(byte x, byte y, boolean state) {
   lcd.write(code);
 }
 
-void drawClock(byte hours, byte minutes, byte x, byte y, boolean dotState) {
+void drawClock(byte hours, byte minutes, byte x, byte y) {
   lcd.setCursor(x, y);
   lcd.print("               ");
   lcd.setCursor(x, y + 1);
@@ -240,21 +239,20 @@ void clockTick() {
     if (secs > 59) {      // каждую минуту
       secs = 0;
       mins++;
-      if (mins <= 59 && mode == 0) drawClock(hrs, mins, 0, 0, 1);
+      if (mins <= 59 && mode == 0) drawClock(hrs, mins, 0, 0);
     }
     if (mins > 59) {      // каждый час
       now = rtc.now();
       secs = now.second();
       mins = now.minute();
       hrs = now.hour();
-      if (mode == 0) drawClock(hrs, mins, 0, 0, 1);
+      if (mode == 0) drawClock(hrs, mins, 0, 0);
       if (hrs > 23)
       {
         hrs = 0;
       }
     }
   }
-  drawdots(7, 0, dotFlag);
 }
 
 void DrawBL999() {
@@ -301,7 +299,7 @@ void setup() {
   hrs = now.hour();
 
   loadClock();
-  drawClock(hrs, mins, 0, 0, 1);
+  drawClock(hrs, mins, 0, 0);
   drawData();
 
   bl999_set_rx_pin(2);
@@ -311,13 +309,8 @@ void setup() {
 void loop() {
   if (clockTimer1.isReady()) {
     clockTick();
+    drawdots(7, 0, dotFlag);
+    DrawBL999();
   }
   modesTick();
-
-  if (mode == 0) {                                  // в режиме "главного экрана"
-    if (drawSensorsTimer.isReady()) DrawBL999();  // обновляем показания датчиков на дисплее с периодом SENS_TIME
-  } else {                                          // в любом из графиков
-    if (plotTimer.isReady()) redrawPlot();          // перерисовываем график
-  }
-
 }

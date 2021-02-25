@@ -18,22 +18,16 @@ void modesTick() {
 
   if (changeFlag) {
     if (mode == 0) {
+      clockTimer1.start();
       lcd.clear();
       loadClock();
-      drawClock(hrs, mins, 0, 0, 1);
+      drawClock(hrs, mins, 0, 0);
       drawData();
       DrawBL999();
-    } else {
-      lcd.clear();
-      redrawPlot();
+    } 
+    if (mode == 1){
+      clockTimer1.stop();
+      DrawBME();
     }
-  }
-}
-
-void redrawPlot() {
-  lcd.clear();
-  switch (mode) {
-    case 1: DrawBME() ;
-      break;
   }
 }
